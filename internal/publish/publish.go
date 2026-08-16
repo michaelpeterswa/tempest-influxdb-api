@@ -35,6 +35,14 @@ type Publisher struct {
 	CacheControl string
 }
 
+// Envelope wraps every per-endpoint object with the time its queries ran, so
+// a consumer can tell how fresh the data is without a second request. Data
+// holds the same shape the HTTP API serves for that endpoint.
+type Envelope struct {
+	GeneratedAt time.Time `json:"generated_at"`
+	Data        any       `json:"data"`
+}
+
 // MetricSnapshot is one metric's precomputed responses: the newest reading and
 // every window, keyed by window name. The shapes match the HTTP API exactly so
 // a consumer can switch between the two without translation.
@@ -52,10 +60,13 @@ type Snapshot struct {
 
 // Run computes and uploads the snapshot: one object per endpoint
 // ({prefix}/{metric}/last.json, {prefix}/{metric}/{window}.json) plus the
-// combined {prefix}/snapshot.json.
+// combined {prefix}/snapshot.json. Every object carries the same generated_at
+// — the time this run's queries started — so consumers agree on recency no
+// matter which file they read.
 func (p *Publisher) Run(ctx context.Context) error {
+	generatedAt := time.Now().UTC()
 	snapshot := Snapshot{
-		GeneratedAt: time.Now().UTC(),
+		GeneratedAt: generatedAt,
 		Metrics:     make(map[string]MetricSnapshot),
 	}
 
@@ -69,7 +80,7 @@ func (p *Publisher) Run(ctx context.Context) error {
 		ms.Last = last
 
 		if last != nil {
-			if err := p.put(ctx, fmt.Sprintf("%s/%s/last.json", p.Prefix, metric.Name), last); err != nil {
+			if err := p.put(ctx, fmt.Sprintf("%s/%s/last.json", p.Prefix, metric.Name), Envelope{GeneratedAt: generatedAt, Data: last}); err != nil {
 				return err
 			}
 		}
@@ -84,7 +95,7 @@ func (p *Publisher) Run(ctx context.Context) error {
 			}
 			ms.Windows[window.Name] = points
 
-			if err := p.put(ctx, fmt.Sprintf("%s/%s/%s.json", p.Prefix, metric.Name, window.Name), points); err != nil {
+			if err := p.put(ctx, fmt.Sprintf("%s/%s/%s.json", p.Prefix, metric.Name, window.Name), Envelope{GeneratedAt: generatedAt, Data: points}); err != nil {
 				return err
 			}
 		}

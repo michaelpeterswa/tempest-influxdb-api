@@ -61,6 +61,25 @@ func TestRunPublishesEveryEndpointAndSnapshot(t *testing.T) {
 		}
 	}
 
+	// per-endpoint objects are wrapped in an envelope carrying the query time
+	envData, err := bucket.ReadAll(ctx, "v1/temperature/24h.json")
+	if err != nil {
+		t.Fatalf("read temperature/24h: %v", err)
+	}
+	var envelope struct {
+		GeneratedAt time.Time                   `json:"generated_at"`
+		Data        []influxdb.GetFieldResponse `json:"data"`
+	}
+	if err := json.Unmarshal(envData, &envelope); err != nil {
+		t.Fatalf("unmarshal envelope: %v", err)
+	}
+	if envelope.GeneratedAt.IsZero() {
+		t.Error("expected envelope generated_at to be set")
+	}
+	if len(envelope.Data) != 1 || envelope.Data[0].Avg != 2 {
+		t.Errorf("unexpected envelope data %+v", envelope.Data)
+	}
+
 	// snapshot decodes and contains every metric with every window
 	data, err := bucket.ReadAll(ctx, "v1/snapshot.json")
 	if err != nil {
@@ -72,6 +91,9 @@ func TestRunPublishesEveryEndpointAndSnapshot(t *testing.T) {
 	}
 	if snapshot.GeneratedAt.IsZero() {
 		t.Error("expected generated_at to be set")
+	}
+	if !snapshot.GeneratedAt.Equal(envelope.GeneratedAt) {
+		t.Errorf("snapshot generated_at %v differs from envelope %v", snapshot.GeneratedAt, envelope.GeneratedAt)
 	}
 	if len(snapshot.Metrics) != len(handlers.Metrics) {
 		t.Errorf("expected %d metrics in snapshot, got %d", len(handlers.Metrics), len(snapshot.Metrics))

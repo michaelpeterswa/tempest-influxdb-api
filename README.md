@@ -5,7 +5,7 @@ An HTTP API and snapshot publisher that serves WeatherFlow Tempest weather data 
 ## Commands
 
 - `tempest-influxdb-api serve` — run the HTTP API (default container command)
-- `tempest-influxdb-api publish` — compute every metric x window + last and upload the JSON to a public bucket ([gocloud.dev](https://gocloud.dev) URL, e.g. `gs://...` or `file:///...`), for static consumers like a GitHub Pages site. Publishes per-endpoint objects (`v1/temperature/24h.json`, `v1/temperature/last.json`, ...) plus a combined `v1/snapshot.json`, with `Cache-Control` and a `generated_at` stamp. Meant to run on a schedule: the tower uploads each snapshot once, however many readers there are.
+- `tempest-influxdb-api publish` — compute every metric x window + last and upload the JSON to a public bucket ([gocloud.dev](https://gocloud.dev) URL, e.g. `gs://...` or `file:///...`), for static consumers like a GitHub Pages site. Publishes per-endpoint objects (`v1/temperature/24h.json`, `v1/temperature/last.json`, ...) plus a combined `v1/snapshot.json`, with `Cache-Control` set on every object. Every object carries the time the run's queries started — per-endpoint files as an envelope `{"generated_at": ..., "data": <same shape as the HTTP API>}`, the snapshot as a top-level `generated_at` — so consumers can show recency without a second request. Meant to run on a schedule: the tower uploads each snapshot once, however many readers there are.
 
 ## Endpoints
 
