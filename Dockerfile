@@ -19,4 +19,4 @@ COPY --from=stage-compile /go/src/app/tempest-influxdb-api /
 
 EXPOSE 8080
 
-CMD ["/tempest-influxdb-api"]
+CMD ["/tempest-influxdb-api", "serve"]

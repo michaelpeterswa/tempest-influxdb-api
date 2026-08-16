@@ -1,6 +1,11 @@
 # Tempest InfluxDB API
 
-An HTTP API that serves WeatherFlow Tempest weather data out of InfluxDB, so other applications can query it without speaking Flux. Pairs with [tempest-influxdb](https://github.com/michaelpeterswa/tempest-influxdb), which collects the station's UDP broadcasts into InfluxDB. Structure modeled on [lfpweather-api](https://github.com/michaelpeterswa/lfpweather-api).
+An HTTP API and snapshot publisher that serves WeatherFlow Tempest weather data out of InfluxDB, so other applications can query it without speaking Flux. Pairs with [tempest-influxdb](https://github.com/michaelpeterswa/tempest-influxdb), which collects the station's UDP broadcasts into InfluxDB. Structure modeled on [lfpweather-api](https://github.com/michaelpeterswa/lfpweather-api).
+
+## Commands
+
+- `tempest-influxdb-api serve` — run the HTTP API (default container command)
+- `tempest-influxdb-api publish` — compute every metric x window + last and upload the JSON to a public bucket ([gocloud.dev](https://gocloud.dev) URL, e.g. `gs://...` or `file:///...`), for static consumers like a GitHub Pages site. Publishes per-endpoint objects (`v1/temperature/24h.json`, `v1/temperature/last.json`, ...) plus a combined `v1/snapshot.json`, with `Cache-Control` and a `generated_at` stamp. Meant to run on a schedule: the tower uploads each snapshot once, however many readers there are.
 
 ## Endpoints
 
@@ -42,12 +47,15 @@ All configuration is via environment variables.
 | `INFLUX_BUCKET`           | InfluxDB bucket to query                           | Yes      | -                    |
 | `INFLUX_MEASUREMENT`      | Measurement name written by the collector          | No       | `weather`            |
 | `QUERY_TIMEOUT`           | Timeout for one InfluxDB query                     | No       | `10s`                |
-| `DRAGONFLY_HOST`          | Dragonfly (or Redis) host for response caching     | Yes      | -                    |
+| `DRAGONFLY_HOST`          | Dragonfly (or Redis) host for response caching     | serve    | -                    |
 | `DRAGONFLY_PORT`          | Dragonfly port                                     | No       | `6379`               |
 | `DRAGONFLY_AUTH`          | Dragonfly password                                 | No       | -                    |
 | `DRAGONFLY_KEY_PREFIX`    | Cache key prefix                                   | No       | `tempest`            |
 | `CACHE_RESULTS_DURATION`  | Cache TTL for query results                        | No       | `5m`                 |
 | `PORT`                    | HTTP listen port                                   | No       | `8080`               |
+| `PUBLISH_BUCKET_URL`      | gocloud.dev blob URL the publish command writes to | publish  | -                    |
+| `PUBLISH_PREFIX`          | Key prefix inside the bucket                       | No       | `v1`                 |
+| `PUBLISH_CACHE_CONTROL`   | Cache-Control header set on uploaded objects       | No       | `public, max-age=60` |
 | `AUTHENTICATION_ENABLED`  | Require an API key on `/api` routes                | No       | `false`              |
 | `API_KEYS`                | Comma-separated list of accepted `X-API-Key` values| No       | -                    |
 | `LOG_LEVEL`               | Log level (`debug`, `info`, `warn`, `error`)       | No       | `error`              |

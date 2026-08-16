@@ -50,9 +50,9 @@ var Windows = []Window{
 	{Name: "90d", LookbackInterval: "90d", TimeBucket: "1d"},
 }
 
-// lastLookback bounds the search for the newest point; the Tempest reports
+// LastLookback bounds the search for the newest point; the Tempest reports
 // every minute, so a day of slack is plenty.
-const lastLookback = "24h"
+const LastLookback = "24h"
 
 type WeatherHandler struct {
 	influxClient *influxdb.InfluxClient
@@ -84,7 +84,7 @@ func (s *WeatherHandler) GetFieldWindow(metric Metric, window Window) http.Handl
 // GetFieldLast returns the handler for one metric's newest value.
 func (s *WeatherHandler) GetFieldLast(metric Metric) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		value, err := s.influxClient.GetFieldLast(r.Context(), s.influxClient.FieldLastParameters(metric.Field, lastLookback))
+		value, err := s.influxClient.GetFieldLast(r.Context(), s.influxClient.FieldLastParameters(metric.Field, LastLookback))
 		if err != nil {
 			status := http.StatusInternalServerError
 			if errors.Is(err, influxdb.ErrNoData) {

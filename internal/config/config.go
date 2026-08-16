@@ -21,11 +21,24 @@ type Config struct {
 	// QueryTimeout bounds one query against InfluxDB.
 	QueryTimeout time.Duration `env:"QUERY_TIMEOUT" envDefault:"10s"`
 
-	DragonflyHost        string        `env:"DRAGONFLY_HOST,required"`
+	// DragonflyHost is required by the serve command; the publish command does
+	// not use the cache, so it is not required at parse time.
+	DragonflyHost        string        `env:"DRAGONFLY_HOST"`
 	DragonflyPort        int           `env:"DRAGONFLY_PORT" envDefault:"6379"`
 	DragonflyAuth        string        `env:"DRAGONFLY_AUTH"`
 	DragonflyKeyPrefix   string        `env:"DRAGONFLY_KEY_PREFIX" envDefault:"tempest"`
 	CacheResultsDuration time.Duration `env:"CACHE_RESULTS_DURATION" envDefault:"5m"`
+
+	// PublishBucketURL is a gocloud.dev blob URL the publish command writes
+	// to, e.g. "gs://rm-main-p-hj56-tempest-weather" or "file:///tmp/out".
+	PublishBucketURL string `env:"PUBLISH_BUCKET_URL"`
+
+	// PublishPrefix is the key prefix inside the bucket.
+	PublishPrefix string `env:"PUBLISH_PREFIX" envDefault:"v1"`
+
+	// PublishCacheControl is set on every uploaded object. The default keeps
+	// readers at most a minute behind while letting a CDN absorb the traffic.
+	PublishCacheControl string `env:"PUBLISH_CACHE_CONTROL" envDefault:"public, max-age=60"`
 
 	AuthenticationEnabled bool     `env:"AUTHENTICATION_ENABLED" envDefault:"false"`
 	APIKeys               []string `env:"API_KEYS"`
