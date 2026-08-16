@@ -1,0 +1,4 @@
+from(bucket: "{{.Bucket}}")
+    |> range(start: -{{.LookbackInterval}})
+    |> filter(fn: (r) => r._measurement == "{{.Measurement}}" and r._field == "{{.Field}}")
+    |> last()

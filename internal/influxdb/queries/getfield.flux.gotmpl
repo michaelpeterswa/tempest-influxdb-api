@@ -1,0 +1,18 @@
+data = from(bucket: "{{.Bucket}}")
+    |> range(start: -{{.LookbackInterval}})
+    |> filter(fn: (r) => r._measurement == "{{.Measurement}}" and r._field == "{{.Field}}")
+
+min = data
+    |> aggregateWindow(every: {{.TimeBucket}}, fn: min, createEmpty: false)
+    |> set(key: "agg", value: "min")
+max = data
+    |> aggregateWindow(every: {{.TimeBucket}}, fn: max, createEmpty: false)
+    |> set(key: "agg", value: "max")
+avg = data
+    |> aggregateWindow(every: {{.TimeBucket}}, fn: mean, createEmpty: false)
+    |> set(key: "agg", value: "avg")
+
+union(tables: [min, max, avg])
+    |> pivot(rowKey: ["_time"], columnKey: ["agg"], valueColumn: "_value")
+    |> keep(columns: ["_time", "min", "max", "avg"])
+    |> sort(columns: ["_time"])
