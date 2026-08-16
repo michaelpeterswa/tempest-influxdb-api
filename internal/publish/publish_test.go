@@ -34,7 +34,7 @@ func (f *fakeReader) GetFieldLast(_ context.Context, tp influxdb.GetFieldLastTem
 
 func TestRunPublishesEveryEndpointAndSnapshot(t *testing.T) {
 	bucket := memblob.OpenBucket(nil)
-	defer bucket.Close()
+	defer func() { _ = bucket.Close() }()
 
 	p := &Publisher{
 		Reader:       &fakeReader{},
