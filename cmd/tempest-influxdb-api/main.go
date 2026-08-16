@@ -45,11 +45,16 @@ func main() {
 
 	ctx := context.Background()
 
+	exporterType := ootel.ExporterTypePrometheus
+	if c.Local {
+		exporterType = ootel.ExporterTypeOTLPGRPC
+	}
+
 	ootelClient := ootel.NewOotelClient(
 		ootel.WithMetricConfig(
 			ootel.NewMetricConfig(
 				c.MetricsEnabled,
-				ootel.ExporterTypePrometheus,
+				exporterType,
 				c.MetricsPort,
 			),
 		),

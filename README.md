@@ -51,6 +51,7 @@ All configuration is via environment variables.
 | `LOG_LEVEL`               | Log level (`debug`, `info`, `warn`, `error`)       | No       | `error`              |
 | `METRICS_ENABLED`         | Serve OpenTelemetry metrics                        | No       | `true`               |
 | `METRICS_PORT`            | Prometheus metrics port                            | No       | `8081`               |
+| `LOCAL`                   | Export metrics via OTLP gRPC instead of Prometheus | No       | `false`              |
 | `TRACING_ENABLED`         | Enable OpenTelemetry tracing                       | No       | `false`              |
 | `TRACING_SAMPLERATE`      | Trace sample rate                                  | No       | `0.01`               |
 | `TRACING_SERVICE`         | Trace service name                                 | No       | `tempest-influxdb-api` |
