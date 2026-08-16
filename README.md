@@ -9,9 +9,9 @@ All endpoints live under `/api/v1` and return JSON. Errors are RFC 9457 `applica
 For each metric below:
 
 - `GET /api/v1/{metric}/last` — newest value: `{"time": ..., "last": ...}`
-- `GET /api/v1/{metric}/{window}` — bucketed history: `[{"time": ..., "min": ..., "max": ..., "avg": ...}, ...]`
+- `GET /api/v1/{metric}/{window}` — bucketed history: `[{"time": ..., "min": ..., "max": ..., "avg": ..., "sum": ...}, ...]`
 
-Windows and their bucket sizes: `12h` (30m), `24h` (1h), `7d` (6h), `30d` (1d).
+Windows and their bucket sizes: `12h` (30m), `24h` (1h), `7d` (6h), `30d` (1d), `90d` (1d).
 
 | Metric            | InfluxDB Field    |
 |-------------------|-------------------|
@@ -21,11 +21,13 @@ Windows and their bucket sizes: `12h` (30m), `24h` (1h), `7d` (6h), `30d` (1d).
 | `pressure`        | `p`               |
 | `wind_speed`      | `wind_avg`        |
 | `wind_gust`       | `wind_gust`       |
+| `wind_direction`  | `wind_direction`  |
 | `rain`            | `precipitation`   |
 | `solar_radiation` | `solar_radiation` |
 | `uv_index`        | `uv`              |
 | `illuminance`     | `illuminance`     |
 | `strike_count`    | `strike_count`    |
+| `strike_distance` | `strike_distance` |
 | `battery`         | `battery`         |
 
 ## Configuration

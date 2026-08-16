@@ -23,11 +23,13 @@ var Metrics = []Metric{
 	{Name: "pressure", Field: "p"},
 	{Name: "wind_speed", Field: "wind_avg"},
 	{Name: "wind_gust", Field: "wind_gust"},
+	{Name: "wind_direction", Field: "wind_direction"},
 	{Name: "rain", Field: "precipitation"},
 	{Name: "solar_radiation", Field: "solar_radiation"},
 	{Name: "uv_index", Field: "uv"},
 	{Name: "illuminance", Field: "illuminance"},
 	{Name: "strike_count", Field: "strike_count"},
+	{Name: "strike_distance", Field: "strike_distance"},
 	{Name: "battery", Field: "battery"},
 }
 
@@ -45,6 +47,7 @@ var Windows = []Window{
 	{Name: "24h", LookbackInterval: "24h", TimeBucket: "1h"},
 	{Name: "7d", LookbackInterval: "7d", TimeBucket: "6h"},
 	{Name: "30d", LookbackInterval: "30d", TimeBucket: "1d"},
+	{Name: "90d", LookbackInterval: "90d", TimeBucket: "1d"},
 }
 
 // lastLookback bounds the search for the newest point; the Tempest reports

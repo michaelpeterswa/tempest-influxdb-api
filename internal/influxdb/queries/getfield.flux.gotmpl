@@ -11,8 +11,11 @@ max = data
 avg = data
     |> aggregateWindow(every: {{.TimeBucket}}, fn: mean, createEmpty: false)
     |> set(key: "agg", value: "avg")
+sum = data
+    |> aggregateWindow(every: {{.TimeBucket}}, fn: sum, createEmpty: false)
+    |> set(key: "agg", value: "sum")
 
-union(tables: [min, max, avg])
+union(tables: [min, max, avg, sum])
     |> pivot(rowKey: ["_time"], columnKey: ["agg"], valueColumn: "_value")
-    |> keep(columns: ["_time", "min", "max", "avg"])
+    |> keep(columns: ["_time", "min", "max", "avg", "sum"])
     |> sort(columns: ["_time"])

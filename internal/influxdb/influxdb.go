@@ -89,6 +89,7 @@ type GetFieldResponse struct {
 	Min  float64   `json:"min"`
 	Max  float64   `json:"max"`
 	Avg  float64   `json:"avg"`
+	Sum  float64   `json:"sum"`
 }
 
 type GetFieldLastResponse struct {
@@ -218,6 +219,9 @@ func (c *InfluxClient) GetField(ctx context.Context, tp GetFieldTemplateParamete
 			continue
 		}
 		if row.Avg, ok = floatValue(record.ValueByKey("avg")); !ok {
+			continue
+		}
+		if row.Sum, ok = floatValue(record.ValueByKey("sum")); !ok {
 			continue
 		}
 
